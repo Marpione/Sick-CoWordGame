@@ -108,13 +108,36 @@ public class Client : MonoBehaviour
             case NetOP.None:
                 Debug.LogError("Unexpected Message from client");
                 break;
+            case NetOP.OnCreateAccount:
+                OnCreateAccount((Net_OnCreateAccount) netMessage);
+                break;
+
+            case NetOP.OnLoginRequest:
+                OnLoginRequest((Net_OnLoginRequest) netMessage);
+                break;
         }
     }
+
+    private void OnCreateAccount(Net_OnCreateAccount oca)
+    {
+        Debug.Log(oca.Success);
+        if(oca.Success != 0)
+            Debug.Log("Create account Sucess " + oca.Information);
+        else Debug.Log("Create Failed " + oca.Information);
+
+    }
+
+    private void OnLoginRequest(Net_OnLoginRequest olr)
+    {
+        if (olr.Success != 1)
+            Debug.Log("Login Fail " + olr.Information);
+        else Debug.Log(olr.Information);
+    }
+
     #endregion
 
 
     #region Send
-    [Button(ButtonSizes.Medium)]
     public void SendServer(NetMessage netMessage)
     {
         //This is where we hold our data
@@ -129,15 +152,44 @@ public class Client : MonoBehaviour
 
         NetworkTransport.Send(hostId, connectionID, relibleChannel, buffer, BYTE_SIZE, out error);
     }
-    #endregion
 
     [Button(ButtonSizes.Medium)]
-    public void TestCreateAccount()
+    public void SendCreateAccount(string username, string password, string email)
     {
-        Net_CreateAccount ca = new Net_CreateAccount();
-        ca.Username = "Swag";
-        ca.Password = "1234";
-        ca.Email = "clientMail@mail.com";
-        SendServer(ca);
+        if (!Utility.IsUsername(username))
+            return;
+
+        if (!Utility.IsEmail(email))
+            return;
+
+        if (string.IsNullOrEmpty(password))
+            return;
+
+        Net_CreateAccount createAccount = new Net_CreateAccount();
+
+        createAccount.Username = username;
+        createAccount.Password = Utility.Sha256FromString(password);
+        createAccount.Email = email;
+
+        SendServer(createAccount);
     }
+    [Button(ButtonSizes.Medium)]
+    public void SendLoginRequest(string usernameOrEmail, string password)
+    {
+        if (!Utility.IsUsernameAndDiscriminator(usernameOrEmail) && !Utility.IsEmail(usernameOrEmail))
+            return;
+
+        if (string.IsNullOrEmpty(password))
+            return;
+
+        Net_LoginRequest loginRequest = new Net_LoginRequest();
+
+        loginRequest.UsernameOrEmail = usernameOrEmail;
+        loginRequest.Password = Utility.Sha256FromString(password);
+
+        SendServer(loginRequest);
+    }
+
+
+    #endregion
 }
