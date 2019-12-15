@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System;
 
-public class Client : MonoBehaviour
+public class Client : Singleton<Client>
 {
     private const int MAX_USER = 100;
     private const int port = 13000;
@@ -22,6 +22,30 @@ public class Client : MonoBehaviour
     private byte error;
 
     private bool isStarted = false;
+
+    private Account self;
+    private string token;
+
+    #region Events
+    public delegate void OnLoginSuccessAction();
+    public static event OnLoginSuccessAction OnLoginSuccess;
+
+    public delegate void OnLoginFailAction();
+    public static event OnLoginFailAction OnLoginFail;
+
+    public delegate void OnCreateAccountSuccessAction();
+    public static event OnCreateAccountSuccessAction OnCreateAcountSuccess;
+
+    public delegate void OnCreateAccountFailAction();
+    public static event OnCreateAccountFailAction OnCreateAcountFail;
+
+    public delegate void OnAddFriendAction();
+    public static event OnAddFriendAction OnAddFriend;
+
+    public delegate void OnRemoveFriendAction();
+    public static event OnRemoveFriendAction OnRemoveFriend;
+
+    #endregion
 
     #region MonoBehaviour
     private void Start()
@@ -121,17 +145,42 @@ public class Client : MonoBehaviour
     private void OnCreateAccount(Net_OnCreateAccount oca)
     {
         Debug.Log(oca.Success);
-        if(oca.Success != 0)
+        if (oca.Success != 0)
+        {
             Debug.Log("Create account Sucess " + oca.Information);
-        else Debug.Log("Create Failed " + oca.Information);
-
+            if (OnCreateAcountSuccess != null)
+                OnCreateAcountSuccess.Invoke();
+        }
+        else
+        {
+            Debug.Log("Create Failed " + oca.Information);
+            if (OnCreateAcountFail != null)
+                OnCreateAcountFail.Invoke();
+        }
     }
 
     private void OnLoginRequest(Net_OnLoginRequest olr)
     {
         if (olr.Success != 1)
+        {
             Debug.Log("Login Fail " + olr.Information);
-        else Debug.Log(olr.Information);
+            if (OnLoginFail != null)
+                OnLoginFail.Invoke();
+          
+        }
+        else 
+        {
+            Debug.Log(olr.Information);
+            if (OnLoginSuccess != null)
+                OnLoginSuccess.Invoke();
+
+            self = new Account();
+            self.ActiveconnectionStatus = olr.ConnectionId;
+            self.Username = olr.Username;
+            self.Discriminator = olr.Discriminator;
+
+            token = olr.Token;
+        }
     }
 
     #endregion
@@ -188,6 +237,7 @@ public class Client : MonoBehaviour
         loginRequest.Password = Utility.Sha256FromString(password);
 
         SendServer(loginRequest);
+        Debug.Log("Send a login Request"); 
     }
 
 
