@@ -11,6 +11,14 @@ public class Panel : MonoBehaviour
 
     bool status;
 
+    public void ShowPanel(NetMessage netMessage)
+    {
+        CanvasGroup.alpha = 1;
+        CanvasGroup.interactable = true;
+        CanvasGroup.blocksRaycasts = true;
+        status = true;
+    }
+
     [ButtonGroup("PanelGroup")]
     public void ShowPanel()
     {
@@ -18,6 +26,14 @@ public class Panel : MonoBehaviour
         CanvasGroup.interactable = true;
         CanvasGroup.blocksRaycasts = true;
         status = true;
+    }
+
+    public void HidePanel(NetMessage netMessage)
+    {
+        CanvasGroup.alpha = 0;
+        CanvasGroup.interactable = false;
+        CanvasGroup.blocksRaycasts = false;
+        status = false;
     }
 
     [ButtonGroup("PanelGroup")]

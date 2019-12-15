@@ -1,6 +1,7 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+
+[System.Serializable]
 public class Net_OnRequestFriend : NetMessage
 {
     public Net_OnRequestFriend()

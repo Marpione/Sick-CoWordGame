@@ -27,23 +27,26 @@ public class Client : Singleton<Client>
     private string token;
 
     #region Events
-    public delegate void OnLoginSuccessAction();
+    public delegate void OnLoginSuccessAction(Net_OnLoginRequest netMessage);
     public static event OnLoginSuccessAction OnLoginSuccess;
 
-    public delegate void OnLoginFailAction();
+    public delegate void OnLoginFailAction(Net_OnLoginRequest netMessage);
     public static event OnLoginFailAction OnLoginFail;
 
-    public delegate void OnCreateAccountSuccessAction();
+    public delegate void OnCreateAccountSuccessAction(Net_OnCreateAccount netMessage);
     public static event OnCreateAccountSuccessAction OnCreateAcountSuccess;
 
-    public delegate void OnCreateAccountFailAction();
+    public delegate void OnCreateAccountFailAction(Net_OnCreateAccount netMessage);
     public static event OnCreateAccountFailAction OnCreateAcountFail;
 
-    public delegate void OnAddFriendAction();
+    public delegate void OnAddFriendAction(Net_OnAddFriend net_OnAddFriend);
     public static event OnAddFriendAction OnAddFriend;
 
-    public delegate void OnRemoveFriendAction();
+    public delegate void OnRemoveFriendAction(NetMessage netMessage);
     public static event OnRemoveFriendAction OnRemoveFriend;
+
+    public delegate void OnRequestFriendAction(Net_OnRequestFriend netMessage);
+    public static event OnRequestFriendAction OnRequestFriend;
 
     #endregion
 
@@ -139,6 +142,21 @@ public class Client : Singleton<Client>
             case NetOP.OnLoginRequest:
                 OnLoginRequest((Net_OnLoginRequest) netMessage);
                 break;
+
+            case NetOP.OnAddFriend:
+                if(OnAddFriend != null)
+                    OnAddFriend.Invoke((Net_OnAddFriend)netMessage);
+                break;
+
+            //case NetOP.onre:
+            //    if (OnRemoveFriend != null)
+            //        OnRemoveFriend.Invoke(netMessage);
+            //    break;
+
+            case NetOP.OnRequestFriend:
+                if (OnRequestFriend != null)
+                    OnRequestFriend.Invoke((Net_OnRequestFriend)netMessage);
+                break;
         }
     }
 
@@ -149,13 +167,13 @@ public class Client : Singleton<Client>
         {
             Debug.Log("Create account Sucess " + oca.Information);
             if (OnCreateAcountSuccess != null)
-                OnCreateAcountSuccess.Invoke();
+                OnCreateAcountSuccess.Invoke(oca);
         }
         else
         {
             Debug.Log("Create Failed " + oca.Information);
             if (OnCreateAcountFail != null)
-                OnCreateAcountFail.Invoke();
+                OnCreateAcountFail.Invoke(oca);
         }
     }
 
@@ -165,14 +183,14 @@ public class Client : Singleton<Client>
         {
             Debug.Log("Login Fail " + olr.Information);
             if (OnLoginFail != null)
-                OnLoginFail.Invoke();
+                OnLoginFail.Invoke(olr);
           
         }
         else 
         {
             Debug.Log(olr.Information);
             if (OnLoginSuccess != null)
-                OnLoginSuccess.Invoke();
+                OnLoginSuccess.Invoke(olr);
 
             self = new Account();
             self.ActiveconnectionStatus = olr.ConnectionId;
@@ -238,6 +256,33 @@ public class Client : Singleton<Client>
 
         SendServer(loginRequest);
         Debug.Log("Send a login Request"); 
+    }
+
+    public void SendAddFriend(string usernameOrEmail)
+    {
+        Net_AddFriend af = new Net_AddFriend();
+
+        af.Token = token;
+        af.UsernameOrEmail = usernameOrEmail;
+
+        SendServer(af);
+    }
+
+    public void SendRemoveFriend(string usernameOrEmail)
+    {
+        Net_RemoveFriend rf = new Net_RemoveFriend();
+
+        rf.Token = token;
+        rf.UsernameOrEmail = usernameOrEmail;
+
+        SendServer(rf);
+    }
+
+    public void SendFriendRequest()
+    {
+        Net_RequestFriend rf = new Net_RequestFriend();
+        rf.Token = token;
+        SendServer(rf);
     }
 
 
