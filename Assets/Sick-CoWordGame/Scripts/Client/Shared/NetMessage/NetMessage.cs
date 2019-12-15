@@ -7,6 +7,13 @@ public static class NetOP
 
     public const int OnCreateAccount = 3;
     public const int OnLoginRequest = 4;
+
+    public const int AddFriend = 5;
+    public const int RemoveFriend = 6;
+    public const int RequestFriend = 7;
+
+    public const int OnAddFriend = 8;
+    public const int OnRequestFriend = 9;
 }
 
 [System.Serializable]
