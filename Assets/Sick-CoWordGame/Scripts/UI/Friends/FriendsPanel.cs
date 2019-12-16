@@ -9,10 +9,11 @@ public class FriendsPanel : Panel
 
     private List<FriendDiplay> friendDiplays = new List<FriendDiplay>();
 
+    public Net_OnAddFriend lastAddedFriend;
+
     private void OnEnable()
     {
         Client.OnLoginSuccess += AskForFirends;
-        Client.OnAddFriend += AskForFirends;
         Client.OnAddFriend += AddFriendToList;
         Client.OnRequestFriend += GetFriends;
         //Client.OnRemoveFriend += AskForFirends;
@@ -21,7 +22,6 @@ public class FriendsPanel : Panel
     private void OnDisable()
     {
         Client.OnLoginSuccess -= AskForFirends;
-        Client.OnAddFriend -= AskForFirends;
         Client.OnAddFriend -= AddFriendToList;
         Client.OnRequestFriend -= GetFriends;
     }
@@ -35,10 +35,17 @@ public class FriendsPanel : Panel
 
     void AddFriendToList(Net_OnAddFriend net_OnAddFriend)
     {
-        GameObject go = Instantiate(FriendDiplayPrefab, transform);
-        FriendDiplay friendDiplay = go.GetComponent<FriendDiplay>();
-        friendDiplay.SetUpFriend(net_OnAddFriend.FriendAccount.Username + "#" + net_OnAddFriend.FriendAccount.Discriminator, net_OnAddFriend.FriendAccount.Status);
-        friendDiplays.Add(friendDiplay);
+        Debug.Log(net_OnAddFriend.Success);
+        if (net_OnAddFriend.Success == 1)
+        {
+            GameObject go = Instantiate(FriendDiplayPrefab, transform);
+            FriendDiplay friendDiplay = go.GetComponent<FriendDiplay>();
+            friendDiplay.SetUpFriend(net_OnAddFriend.FriendAccount.Username + "#" + net_OnAddFriend.FriendAccount.Discriminator, net_OnAddFriend.FriendAccount.Status);
+            friendDiplays.Add(friendDiplay);
+            lastAddedFriend = net_OnAddFriend;
+        }
+
+       
     }
 
     public void GetFriends(Net_OnRequestFriend netMessage)

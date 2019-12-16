@@ -25,6 +25,7 @@ public class Client : Singleton<Client>
 
     private Account self;
     private string token;
+    public string Token { get { return token; } }
 
     #region Events
     public delegate void OnLoginSuccessAction(Net_OnLoginRequest netMessage);
@@ -159,6 +160,7 @@ public class Client : Singleton<Client>
             //    break;
 
             case NetOP.OnRequestFriend:
+                Debug.Log("Friends Requested");
                 if (OnRequestFriend != null)
                     OnRequestFriend.Invoke((Net_OnRequestFriend)netMessage);
                 break;
@@ -194,11 +196,7 @@ public class Client : Singleton<Client>
         else 
         {
             Debug.Log(olr.Information);
-            if (OnLoginSuccess != null)
-            {
-                OnLoginSuccess.Invoke(olr);
-                Debug.Log("Invoke Login success");
-            }
+           
 
             self = new Account();
             self.ActiveconnectionStatus = olr.ConnectionId;
@@ -206,6 +204,12 @@ public class Client : Singleton<Client>
             self.Discriminator = olr.Discriminator;
 
             token = olr.Token;
+
+
+            if (OnLoginSuccess != null)
+            {
+                OnLoginSuccess.Invoke(olr);
+            }
         }
     }
 
@@ -263,14 +267,14 @@ public class Client : Singleton<Client>
         loginRequest.Password = Utility.Sha256FromString(password);
 
         SendServer(loginRequest);
-        Debug.Log("Send a login Request"); 
+        Debug.Log("Send a login Request " + token); 
     }
 
     public void SendAddFriend(string usernameOrEmail)
     {
         Net_AddFriend af = new Net_AddFriend();
 
-        af.Token = token;
+        af.Token = Token;
         af.UsernameOrEmail = usernameOrEmail;
 
         SendServer(af);
@@ -280,16 +284,18 @@ public class Client : Singleton<Client>
     {
         Net_RemoveFriend rf = new Net_RemoveFriend();
 
-        rf.Token = token;
-        rf.UsernameOrEmail = usernameOrEmail;
+        rf.Token = Token;
+        rf.Username = usernameOrEmail;
 
         SendServer(rf);
     }
 
     public void SendFriendRequest()
     {
+        Debug.Log("Asking server for friend list");
+        Debug.Log(Token);
         Net_RequestFriend rf = new Net_RequestFriend();
-        rf.Token = token;
+        rf.Token = Token;
         SendServer(rf);
     }
 
