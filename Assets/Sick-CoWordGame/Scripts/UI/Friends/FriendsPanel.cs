@@ -11,53 +11,52 @@ public class FriendsPanel : Panel
 
     private void OnEnable()
     {
-        Client.OnLoginSuccess += GetFriends;
-        Client.OnAddFriend += GetFriends;
-        Client.OnRemoveFriend += GetFriends;
+        Client.OnLoginSuccess += AskForFirends;
+        Client.OnAddFriend += AskForFirends;
+        Client.OnAddFriend += AddFriendToList;
+        Client.OnRequestFriend += GetFriends;
+        //Client.OnRemoveFriend += AskForFirends;
     }
 
     private void OnDisable()
     {
-        Client.OnLoginSuccess -= GetFriends;
-        Client.OnAddFriend -= GetFriends;
-        Client.OnRemoveFriend -= GetFriends;
+        Client.OnLoginSuccess -= AskForFirends;
+        Client.OnAddFriend -= AskForFirends;
+        Client.OnAddFriend -= AddFriendToList;
+        Client.OnRequestFriend -= GetFriends;
     }
 
-    public void GetFriends(NetMessage netMessage)
+    void AskForFirends(NetMessage netMessage)
     {
+        Debug.Log("Asking friend Request");
+        Debug.Log(netMessage.GetType());
         Client.Instance.SendFriendRequest();
+    }
 
-        try
+    void AddFriendToList(Net_OnAddFriend net_OnAddFriend)
+    {
+        GameObject go = Instantiate(FriendDiplayPrefab, transform);
+        FriendDiplay friendDiplay = go.GetComponent<FriendDiplay>();
+        friendDiplay.SetUpFriend(net_OnAddFriend.FriendAccount.Username + "#" + net_OnAddFriend.FriendAccount.Discriminator, net_OnAddFriend.FriendAccount.Status);
+        friendDiplays.Add(friendDiplay);
+    }
+
+    public void GetFriends(Net_OnRequestFriend netMessage)
+    {
+        Debug.Log("Requested friends");
+        Net_OnRequestFriend requestFriendMessage = (Net_OnRequestFriend)netMessage;
+
+        if (requestFriendMessage != null)
         {
-            Net_OnRequestFriend requestFriendMessage = (Net_OnRequestFriend)netMessage;
-
-            if (requestFriendMessage != null)
+            Debug.Log(requestFriendMessage.FriendRequests.Count);
+            foreach (var friend in requestFriendMessage.FriendRequests)
             {
-                return;
-            }
-
-
-            Net_OnAddFriend addFriendMessage = (Net_OnAddFriend)netMessage;
-
-            if (addFriendMessage != null)
-            {
-                Account friendAccount = addFriendMessage.FriendAccount;
                 GameObject go = Instantiate(FriendDiplayPrefab, transform);
                 FriendDiplay friendDiplay = go.GetComponent<FriendDiplay>();
-
-                friendDiplay.SetUpFriend(friendAccount.Username + "#" + friendAccount.Discriminator, friendAccount.ActiveconnectionStatus);
+                friendDiplay.SetUpFriend(friend.Username + "#" + friend.Discriminator, friend.Status);
                 friendDiplays.Add(friendDiplay);
-                return;
             }
         }
-        catch (System.Exception e)
-        {
-            Debug.LogError(e);
-            throw;
-        }
-
-        
-
-        
+            
     }
 }

@@ -129,7 +129,8 @@ public class Client : Singleton<Client>
     #region OnData
     private void OnData(int connectionId, int channelId, int recHostId, NetMessage netMessage)
     {
-        Debug.Log("Recived a message of type" + netMessage.OP);
+        Debug.Log("Recived a message of type " + netMessage.OP);
+        Debug.Log("Recived message type "+ netMessage.GetType());
         switch (netMessage.OP)
         {
             case NetOP.None:
@@ -144,8 +145,12 @@ public class Client : Singleton<Client>
                 break;
 
             case NetOP.OnAddFriend:
-                if(OnAddFriend != null)
+                Debug.Log("should invoke Add friend");
+                if (OnAddFriend != null)
+                {
                     OnAddFriend.Invoke((Net_OnAddFriend)netMessage);
+                    Debug.Log("Invoked Add friend");
+                }
                 break;
 
             //case NetOP.onre:
@@ -190,7 +195,10 @@ public class Client : Singleton<Client>
         {
             Debug.Log(olr.Information);
             if (OnLoginSuccess != null)
+            {
                 OnLoginSuccess.Invoke(olr);
+                Debug.Log("Invoke Login success");
+            }
 
             self = new Account();
             self.ActiveconnectionStatus = olr.ConnectionId;

@@ -6,7 +6,7 @@ public class Net_OnRequestFriend : NetMessage
 {
     public Net_OnRequestFriend()
     {
-        OP = NetOP.RequestFriend;
+        OP = NetOP.OnRequestFriend;
     }
 
 
