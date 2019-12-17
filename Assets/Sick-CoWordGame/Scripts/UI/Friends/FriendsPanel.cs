@@ -40,12 +40,22 @@ public class FriendsPanel : Panel
         {
             GameObject go = Instantiate(FriendDiplayPrefab, transform);
             FriendDiplay friendDiplay = go.GetComponent<FriendDiplay>();
-            friendDiplay.SetUpFriend(net_OnAddFriend.FriendAccount.Username + "#" + net_OnAddFriend.FriendAccount.Discriminator, net_OnAddFriend.FriendAccount.Status);
+            friendDiplay.SetUpFriend(net_OnAddFriend.FriendAccount);
             friendDiplays.Add(friendDiplay);
             lastAddedFriend = net_OnAddFriend;
         }
+    }
 
-       
+    void UpdateFriend(Account account)
+    {
+        string updatedFriend = account.Username + "#" + account.Discriminator;
+        for (int i = 0; i < friendDiplays.Count; i++)
+        {
+            string currentFriend = friendDiplays[i].FriendAccount.Username + "#" + friendDiplays[i].FriendAccount.Discriminator;
+
+            if (string.Equals(currentFriend, updatedFriend))
+                friendDiplays[i].SetUpFriend(account);
+        }
     }
 
     public void GetFriends(Net_OnRequestFriend netMessage)
@@ -60,7 +70,7 @@ public class FriendsPanel : Panel
             {
                 GameObject go = Instantiate(FriendDiplayPrefab, transform);
                 FriendDiplay friendDiplay = go.GetComponent<FriendDiplay>();
-                friendDiplay.SetUpFriend(friend.Username + "#" + friend.Discriminator, friend.Status);
+                friendDiplay.SetUpFriend(friend);
                 friendDiplays.Add(friendDiplay);
             }
         }

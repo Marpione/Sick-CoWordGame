@@ -9,16 +9,18 @@ public class FriendDiplay : MonoBehaviour
     public Text FriendUserNameText;
     public Image FriendOnlinestatusImage;
 
+    private Account friendAccount;
+    public Account FriendAccount { get { return friendAccount; } }
+
     Button button;
     Button Button { get { return (button == null) ? button = GetComponent<Button>() : button; } }
 
-    string username;
 
-    public void SetUpFriend(string friendUserName, int onlineStatus)
+    public void SetUpFriend(Account fa)
     {
-        username = friendUserName;
-        FriendUserNameText.text = friendUserName;
-        FriendOnlinestatusImage.color = (onlineStatus != 1) ? FriendOnlinestatusImage.color = Color.red : FriendOnlinestatusImage.color = Color.green;
+        friendAccount = fa;
+        FriendUserNameText.text = friendAccount.Username;
+        FriendOnlinestatusImage.color = (friendAccount.Status != 1) ? FriendOnlinestatusImage.color = Color.red : FriendOnlinestatusImage.color = Color.green;
         Button.onClick.AddListener(DeleteThisFriend);
     }
 
@@ -26,7 +28,7 @@ public class FriendDiplay : MonoBehaviour
     {
         Net_RemoveFriend removeFriend = new Net_RemoveFriend();
         removeFriend.Token = Client.Instance.Token;
-        removeFriend.Username = username;
+        removeFriend.Username = friendAccount.Username;
         Client.Instance.SendServer(removeFriend);
         Destroy(gameObject);
     }

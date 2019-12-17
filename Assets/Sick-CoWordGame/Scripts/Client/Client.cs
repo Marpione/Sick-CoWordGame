@@ -43,8 +43,8 @@ public class Client : Singleton<Client>
     public delegate void OnAddFriendAction(Net_OnAddFriend net_OnAddFriend);
     public static event OnAddFriendAction OnAddFriend;
 
-    public delegate void OnRemoveFriendAction(NetMessage netMessage);
-    public static event OnRemoveFriendAction OnRemoveFriend;
+    public delegate void OnUpdateFriendAction(Account netMessage);
+    public static event OnUpdateFriendAction OnUpdateFriend;
 
     public delegate void OnRequestFriendAction(Net_OnRequestFriend netMessage);
     public static event OnRequestFriendAction OnRequestFriend;
@@ -153,11 +153,13 @@ public class Client : Singleton<Client>
                     Debug.Log("Invoked Add friend");
                 }
                 break;
+            case NetOP.FriendUpdate:
+                Net_FriendUpdate friendUpdate = (Net_FriendUpdate)netMessage;
 
-            //case NetOP.onre:
-            //    if (OnRemoveFriend != null)
-            //        OnRemoveFriend.Invoke(netMessage);
-            //    break;
+                if (OnUpdateFriend != null)
+                    OnUpdateFriend.Invoke(friendUpdate.Friend);
+
+                break;
 
             case NetOP.OnRequestFriend:
                 Debug.Log("Friends Requested");
@@ -212,7 +214,6 @@ public class Client : Singleton<Client>
             }
         }
     }
-
     #endregion
 
 
