@@ -16,9 +16,9 @@ MonoBehaviour:
   clientTokens:
   - 
   appIds:
-  - 0
+  - 537686003500866
   appLabels:
-  - App Name
+  - Sick-co Kelime Oyunu
   cookie: 1
   logging: 1
   status: 1
