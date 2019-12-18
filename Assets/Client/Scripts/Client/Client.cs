@@ -55,6 +55,8 @@ public class Client : Singleton<Client>
     private void Start()
     {
         DontDestroyOnLoad(gameObject);
+        FacebookEntegration.debugMode = true;
+        FacebookEntegration.InitFacebook();
         Initilize();
     }
 
@@ -234,22 +236,27 @@ public class Client : Singleton<Client>
     }
 
     [Button(ButtonSizes.Medium)]
-    public void SendCreateAccount(string username, string password, string email)
+    public void SendCreateAccount(string username, string password, string email, string facebookUserId)
     {
-        if (!Utility.IsUsername(username))
-            return;
+        if(string.IsNullOrEmpty(facebookUserId))
+        {
+            if (!Utility.IsUsername(username))
+                return;
 
-        if (!Utility.IsEmail(email))
-            return;
+            if (!Utility.IsEmail(email))
+                return;
 
-        if (string.IsNullOrEmpty(password))
-            return;
+            if (string.IsNullOrEmpty(password))
+                return;
+        }
+       
 
         Net_CreateAccount createAccount = new Net_CreateAccount();
 
         createAccount.Username = username;
         createAccount.Password = Utility.Sha256FromString(password);
         createAccount.Email = email;
+        createAccount.FacebookUserId = facebookUserId;
 
         SendServer(createAccount);
     }
@@ -269,6 +276,17 @@ public class Client : Singleton<Client>
 
         SendServer(loginRequest);
         Debug.Log("Send a login Request " + token); 
+    }
+
+    public void SendLoginRequestWithFacebook(string userID)
+    {
+        if (string.IsNullOrEmpty(userID))
+            return;
+
+        Net_LoginRequest loginRequest = new Net_LoginRequest();
+        loginRequest.FacebookUserId = userID;
+        //loginRequest.Password = Utility.Sha256FromString(Utility.GenerateRandom(6));
+        SendServer(loginRequest);
     }
 
     public void SendAddFriend(string usernameOrEmail)

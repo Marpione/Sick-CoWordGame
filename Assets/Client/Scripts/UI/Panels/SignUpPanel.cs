@@ -24,7 +24,7 @@ public class SignUpPanel : Panel
 
     public void SignUp()
     {
-        Client.Instance.SendCreateAccount(UsernameField.text, PasswordField.text, EmailField.text);
+        Client.Instance.SendCreateAccount(UsernameField.text, PasswordField.text, EmailField.text, null);
     }
 
     void AutoLogin(NetMessage netMessage)
