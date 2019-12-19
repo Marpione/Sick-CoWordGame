@@ -48,12 +48,11 @@ public class FriendsPanel : Panel
 
     void UpdateFriend(Account account)
     {
-        string updatedFriend = account.Username + "#" + account.Discriminator;
         for (int i = 0; i < friendDiplays.Count; i++)
         {
-            string currentFriend = friendDiplays[i].FriendAccount.Username + "#" + friendDiplays[i].FriendAccount.Discriminator;
+            string currentFriend = friendDiplays[i].FriendAccount.userId;
 
-            if (string.Equals(currentFriend, updatedFriend))
+            if (string.Equals(account.userId, friendDiplays[i].FriendAccount.userId))
                 friendDiplays[i].SetUpFriend(account);
         }
     }
@@ -74,6 +73,5 @@ public class FriendsPanel : Panel
                 friendDiplays.Add(friendDiplay);
             }
         }
-            
     }
 }

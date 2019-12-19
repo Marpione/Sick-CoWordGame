@@ -6,6 +6,8 @@ public class Net_OnAddFriend : NetMessage
     {
         OP = NetOP.OnAddFriend;
     }
-    public byte Success { get; set; }
+
+    public byte Success { set; get; }
+
     public Account FriendAccount { set; get; }
 }

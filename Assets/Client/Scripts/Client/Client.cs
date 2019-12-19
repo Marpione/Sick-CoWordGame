@@ -204,9 +204,8 @@ public class Client : Singleton<Client>
 
             self = new Account();
             self.ActiveconnectionStatus = olr.ConnectionId;
-            self.Username = olr.Username;
-            self.Discriminator = olr.Discriminator;
-
+            self.userId = olr.userId;
+            
             token = olr.Token;
 
 
@@ -230,63 +229,39 @@ public class Client : Singleton<Client>
         MemoryStream ms = new MemoryStream(buffer);
         formatter.Serialize(ms, netMessage);
 
-
-
         NetworkTransport.Send(hostId, connectionID, relibleChannel, buffer, BYTE_SIZE, out error);
     }
 
     [Button(ButtonSizes.Medium)]
-    public void SendCreateAccount(string username, string password, string email, string facebookUserId)
-    {
-        if(string.IsNullOrEmpty(facebookUserId))
-        {
-            if (!Utility.IsUsername(username))
-                return;
-
-            if (!Utility.IsEmail(email))
-                return;
-
-            if (string.IsNullOrEmpty(password))
-                return;
-        }
-       
-
+    public void SendCreateAccount(string username)
+    {  
         Net_CreateAccount createAccount = new Net_CreateAccount();
 
-        createAccount.Username = username;
-        createAccount.Password = Utility.Sha256FromString(password);
-        createAccount.Email = email;
-        createAccount.FacebookUserId = facebookUserId;
+        createAccount.userId = username;
 
         SendServer(createAccount);
     }
     [Button(ButtonSizes.Medium)]
-    public void SendLoginRequest(string usernameOrEmail, string password)
+    public void SendLoginRequest(string userId)
     {
-        if (!Utility.IsUsernameAndDiscriminator(usernameOrEmail) && !Utility.IsEmail(usernameOrEmail))
-            return;
-
-        if (string.IsNullOrEmpty(password))
-            return;
-
+        
         Net_LoginRequest loginRequest = new Net_LoginRequest();
 
-        loginRequest.UsernameOrEmail = usernameOrEmail;
-        loginRequest.Password = Utility.Sha256FromString(password);
+        loginRequest.userId = userId;
 
         SendServer(loginRequest);
         Debug.Log("Send a login Request " + token); 
     }
 
-    public void SendLoginRequestWithFacebook(string userID)
+    public void SendLoginRequest(string userId, string facebookUserId)
     {
-        if (string.IsNullOrEmpty(userID))
-            return;
 
         Net_LoginRequest loginRequest = new Net_LoginRequest();
-        loginRequest.FacebookUserId = userID;
-        //loginRequest.Password = Utility.Sha256FromString(Utility.GenerateRandom(6));
+
+        loginRequest.userId = userId;
+
         SendServer(loginRequest);
+        Debug.Log("Send a login Request " + token);
     }
 
     public void SendAddFriend(string usernameOrEmail)
@@ -294,7 +269,7 @@ public class Client : Singleton<Client>
         Net_AddFriend af = new Net_AddFriend();
 
         af.Token = Token;
-        af.UsernameOrEmail = usernameOrEmail;
+        af.userId = usernameOrEmail;
 
         SendServer(af);
     }
@@ -304,7 +279,7 @@ public class Client : Singleton<Client>
         Net_RemoveFriend rf = new Net_RemoveFriend();
 
         rf.Token = Token;
-        rf.Username = usernameOrEmail;
+        rf.userId = usernameOrEmail;
 
         SendServer(rf);
     }
