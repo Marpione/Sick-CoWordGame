@@ -6,30 +6,46 @@ public class GuestLogin : MonoBehaviour
 {
     private void OnEnable()
     {
-        
+        Client.OnCreateAcountSuccess += LoginAsGuest;
     }
 
     private void OnDisable()
     {
-        
+        Client.OnCreateAcountSuccess -= LoginAsGuest;
     }
 
     public void LoginAsGuest()
     {
-        //Check if the account exist
-        if(PlayerPrefs.HasKey(PlayerPrefKeys.UserId))
+        try
         {
-            string userId = PlayerPrefs.GetString(PlayerPrefKeys.UserId);
-            Client.Instance.SendLoginRequest(userId);
-            return;
-        }
+            //Check if the account exist
+            if (PlayerPrefs.HasKey(PlayerPrefKeys.UserId))
+            {
+                string userId = PlayerPrefs.GetString(PlayerPrefKeys.UserId);
+                Client.Instance.SendLoginRequest(userId);
+                return;
+            }
 
-        Client.Instance.SendCreateAccount("Guest#" + Utility.GenerateRandom(256));
+            Client.Instance.SendCreateAccount("Guest#" + Utility.GenerateRandom(256));
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Can't login as a guest: " + e);
+        }
+       
     }
 
     public void LoginAsGuest(Net_OnCreateAccount onCreateAccount)
     {
-        string userId = PlayerPrefs.GetString(PlayerPrefKeys.UserId);
-        Client.Instance.SendLoginRequest(userId);
+        try
+        {
+            string userId = PlayerPrefs.GetString(PlayerPrefKeys.UserId);
+            Client.Instance.SendLoginRequest(userId);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Can't create account as a guest: " + e);
+        }
+
     }
 }

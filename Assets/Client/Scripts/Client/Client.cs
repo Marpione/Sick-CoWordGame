@@ -203,8 +203,8 @@ public class Client : Singleton<Client>
            
 
             self = new Account();
-            self.ActiveconnectionStatus = olr.ConnectionId;
-            self.userId = olr.userId;
+            self.ActiveConnection = olr.ConnectionId;
+            self.userId = olr.UserId;
             
             token = olr.Token;
 
@@ -237,7 +237,7 @@ public class Client : Singleton<Client>
     {  
         Net_CreateAccount createAccount = new Net_CreateAccount();
 
-        createAccount.userId = username;
+        createAccount.UserId = username;
 
         SendServer(createAccount);
     }
@@ -247,7 +247,7 @@ public class Client : Singleton<Client>
         
         Net_LoginRequest loginRequest = new Net_LoginRequest();
 
-        loginRequest.userId = userId;
+        loginRequest.UserId = userId;
 
         SendServer(loginRequest);
         Debug.Log("Send a login Request " + token); 
@@ -258,7 +258,7 @@ public class Client : Singleton<Client>
 
         Net_LoginRequest loginRequest = new Net_LoginRequest();
 
-        loginRequest.userId = userId;
+        loginRequest.UserId = userId;
 
         SendServer(loginRequest);
         Debug.Log("Send a login Request " + token);
@@ -269,7 +269,7 @@ public class Client : Singleton<Client>
         Net_AddFriend af = new Net_AddFriend();
 
         af.Token = Token;
-        af.userId = usernameOrEmail;
+        af.UserId = usernameOrEmail;
 
         SendServer(af);
     }
@@ -279,7 +279,7 @@ public class Client : Singleton<Client>
         Net_RemoveFriend rf = new Net_RemoveFriend();
 
         rf.Token = Token;
-        rf.userId = usernameOrEmail;
+        rf.UserId = usernameOrEmail;
 
         SendServer(rf);
     }

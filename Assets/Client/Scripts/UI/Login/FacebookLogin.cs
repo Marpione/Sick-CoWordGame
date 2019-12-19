@@ -7,13 +7,11 @@ public class FacebookLogin : MonoBehaviour
 {
     private void OnEnable()
     {
-        Client.OnLoginFail += CreateAccountWithFacebook;
         Client.OnCreateAcountSuccess += LoginWithFacebook;
     }
 
     private void OnDisable()
     {
-        Client.OnLoginFail -= CreateAccountWithFacebook;
         Client.OnCreateAcountSuccess -= LoginWithFacebook;
     }
 
@@ -47,6 +45,9 @@ public class FacebookLogin : MonoBehaviour
                     PlayerPrefs.SetString(PlayerPrefKeys.UserId, AccessToken.CurrentAccessToken.UserId);
                     return;
                 }
+
+                if (!string.IsNullOrEmpty(currentUserId) || !currentUserId.Contains("Guest"))
+                    CreateAccountWithFacebook();
             }
         });
 
@@ -57,6 +58,13 @@ public class FacebookLogin : MonoBehaviour
 
     public void LoginWithFacebook(Net_OnCreateAccount createAccount)
     {
+        string[] userId = createAccount.UserId.Split('#');
+        if (userId[1] != null)
+        {
+            if (string.Equals(userId[0], "Guest"))
+                return;
+        }
+
         FacebookEntegration.FacebookLogin((result) =>
         {
             if (result.Error == null)
@@ -68,8 +76,15 @@ public class FacebookLogin : MonoBehaviour
         });
     }
 
-    void CreateAccountWithFacebook(Net_OnLoginRequest onLoginRequest)
+    void CreateAccountWithFacebook()
     {
-        Client.Instance.SendCreateAccount(AccessToken.CurrentAccessToken.UserId);
+        try
+        {
+            Client.Instance.SendCreateAccount(AccessToken.CurrentAccessToken.UserId);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Can't create an account with facebook: " + AccessToken.CurrentAccessToken + " " + e);
+        }
     }
 }

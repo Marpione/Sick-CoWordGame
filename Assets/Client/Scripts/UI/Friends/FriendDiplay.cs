@@ -28,7 +28,7 @@ public class FriendDiplay : MonoBehaviour
     {
         Net_RemoveFriend removeFriend = new Net_RemoveFriend();
         removeFriend.Token = Client.Instance.Token;
-        removeFriend.userId = friendAccount.userId;
+        removeFriend.UserId = friendAccount.userId;
         Client.Instance.SendServer(removeFriend);
         Destroy(gameObject);
     }
