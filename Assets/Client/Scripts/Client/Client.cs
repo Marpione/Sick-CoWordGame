@@ -28,6 +28,9 @@ public class Client : Singleton<Client>
     public string Token { get { return token; } }
 
     #region Events
+    public delegate void OnConnectServerAction();
+    public static event OnConnectServerAction OnConnectServer;
+
     public delegate void OnLoginSuccessAction(Net_OnLoginRequest netMessage);
     public static event OnLoginSuccessAction OnLoginSuccess;
 
@@ -116,6 +119,8 @@ public class Client : Singleton<Client>
                 break;
             case NetworkEventType.ConnectEvent:
                 Debug.Log("We have connected to server");
+                if (OnConnectServer != null)
+                    OnConnectServer.Invoke();
                 break;
             case NetworkEventType.DisconnectEvent:
                 Debug.Log("We have disconnected to server");

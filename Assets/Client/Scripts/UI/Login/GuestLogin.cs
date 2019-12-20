@@ -6,13 +6,11 @@ public class GuestLogin : MonoBehaviour
 {
     private void OnEnable()
     {
-        //Client.OnLoginFail += CreateAccount;
         Client.OnCreateAcountSuccess += LoginAsGuest;
     }
 
     private void OnDisable()
     {
-        //Client.OnLoginFail -= CreateAccount;
         Client.OnCreateAcountSuccess -= LoginAsGuest;
     }
 
@@ -51,13 +49,4 @@ public class GuestLogin : MonoBehaviour
             Debug.LogError("Can't create account as a guest: " + e);
         }
     }
-
-    //void CreateAccount(Net_OnLoginRequest loginRequest)
-    //{
-    //    if (FacebookEntegration.FacebookIsLoggedIn())
-    //        return;
-
-    //    string id = "Guest#" + Utility.GenerateRandom(25);
-    //    Client.Instance.SendCreateAccount(id);
-    //}
 }
