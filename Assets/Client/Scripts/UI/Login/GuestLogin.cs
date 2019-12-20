@@ -6,11 +6,13 @@ public class GuestLogin : MonoBehaviour
 {
     private void OnEnable()
     {
+        //Client.OnLoginFail += CreateAccount;
         Client.OnCreateAcountSuccess += LoginAsGuest;
     }
 
     private void OnDisable()
     {
+        //Client.OnLoginFail -= CreateAccount;
         Client.OnCreateAcountSuccess -= LoginAsGuest;
     }
 
@@ -25,8 +27,9 @@ public class GuestLogin : MonoBehaviour
                 Client.Instance.SendLoginRequest(userId);
                 return;
             }
-
-            Client.Instance.SendCreateAccount("Guest#" + Utility.GenerateRandom(256));
+            string id = "Guest#" + Utility.GenerateRandom(25);
+            Client.Instance.SendCreateAccount(id);
+            PlayerPrefs.SetString(PlayerPrefKeys.UserId, id);
         }
         catch (System.Exception e)
         {
@@ -46,6 +49,13 @@ public class GuestLogin : MonoBehaviour
         {
             Debug.LogError("Can't create account as a guest: " + e);
         }
+    }
 
+    void CreateAccount(Net_OnLoginRequest loginRequest)
+    {
+        if (!Utility.IsGuest(loginRequest.UserId))
+            return;
+
+        Client.Instance.SendCreateAccount(loginRequest.UserId);
     }
 }

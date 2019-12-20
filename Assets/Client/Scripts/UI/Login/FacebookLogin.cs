@@ -20,7 +20,9 @@ public class FacebookLogin : MonoBehaviour
         Debug.Log(FacebookEntegration.FacebookIsLoggedIn());
 
 
-        string currentUserId = PlayerPrefs.GetString(PlayerPrefKeys.UserId);
+        string currentUserId = string.Empty;
+        if(PlayerPrefs.HasKey(PlayerPrefKeys.UserId))
+            currentUserId = PlayerPrefs.GetString(PlayerPrefKeys.UserId);
 
         FacebookEntegration.FacebookLogin((result) =>
         {
@@ -37,6 +39,14 @@ public class FacebookLogin : MonoBehaviour
             }
             else
             {
+                Debug.Log(currentUserId);
+                //If true there has been no login from this phone Create the user
+                if(string.IsNullOrEmpty(currentUserId))
+                {
+                    CreateAccountWithFacebook();
+                    return;
+                }
+
                 //Check if user played as a guest
                 if (!string.Equals(currentUserId, AccessToken.CurrentAccessToken.UserId))
                 {
@@ -45,46 +55,25 @@ public class FacebookLogin : MonoBehaviour
                     PlayerPrefs.SetString(PlayerPrefKeys.UserId, AccessToken.CurrentAccessToken.UserId);
                     return;
                 }
-
-                if (!string.IsNullOrEmpty(currentUserId) || !currentUserId.Contains("Guest"))
-                    CreateAccountWithFacebook();
+                else
+                {
+                    Client.Instance.SendLoginRequest(AccessToken.CurrentAccessToken.UserId);
+                }
             }
         });
-
-        //Check if the user exits
-        //Login with the acces token userId
-        Client.Instance.SendLoginRequest(currentUserId);
     }
 
     public void LoginWithFacebook(Net_OnCreateAccount createAccount)
     {
-        string[] userId = createAccount.UserId.Split('#');
-        if (userId[1] != null)
-        {
-            if (string.Equals(userId[0], "Guest"))
-                return;
-        }
+        if (Utility.IsGuest(createAccount.UserId))
+            return;
 
-        FacebookEntegration.FacebookLogin((result) =>
-        {
-            if (result.Error == null)
-            {
-                //Tell server to Change this account to a facebook connected account
-                Client.Instance.SendLoginRequest(PlayerPrefs.GetString(PlayerPrefKeys.UserId));
-                PlayerPrefs.SetString(PlayerPrefKeys.UserId, AccessToken.CurrentAccessToken.UserId);
-            }
-        });
+        Client.Instance.SendLoginRequest(PlayerPrefs.GetString(PlayerPrefKeys.UserId));
     }
 
     void CreateAccountWithFacebook()
     {
-        try
-        {
-            Client.Instance.SendCreateAccount(AccessToken.CurrentAccessToken.UserId);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("Can't create an account with facebook: " + AccessToken.CurrentAccessToken + " " + e);
-        }
+        Client.Instance.SendCreateAccount(AccessToken.CurrentAccessToken.UserId);
+        PlayerPrefs.SetString(PlayerPrefKeys.UserId, AccessToken.CurrentAccessToken.UserId);
     }
 }

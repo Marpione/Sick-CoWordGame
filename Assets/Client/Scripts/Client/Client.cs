@@ -255,10 +255,10 @@ public class Client : Singleton<Client>
 
     public void SendLoginRequest(string userId, string facebookUserId)
     {
-
         Net_LoginRequest loginRequest = new Net_LoginRequest();
 
         loginRequest.UserId = userId;
+        loginRequest.FacebookUserId = facebookUserId;
 
         SendServer(loginRequest);
         Debug.Log("Send a login Request " + token);
