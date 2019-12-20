@@ -192,7 +192,11 @@ public class Client : Singleton<Client>
     {
         if (olr.Success != 1)
         {
-            Debug.Log("Login Fail " + olr.Information);
+            Debug.Log(string.Format("Login Fail " +
+                "{0}," +
+                "{1}," +
+                "{2}," +
+                "{3} ", olr.UserId, olr.Information, olr.Success, olr.Token));
             if (OnLoginFail != null)
                 OnLoginFail.Invoke(olr);
           

@@ -43,7 +43,8 @@ public class GuestLogin : MonoBehaviour
         try
         {
             string userId = PlayerPrefs.GetString(PlayerPrefKeys.UserId);
-            Client.Instance.SendLoginRequest(userId);
+            if(Utility.IsGuest(userId))
+                Client.Instance.SendLoginRequest(userId);
         }
         catch (System.Exception e)
         {
@@ -51,11 +52,12 @@ public class GuestLogin : MonoBehaviour
         }
     }
 
-    void CreateAccount(Net_OnLoginRequest loginRequest)
-    {
-        if (!Utility.IsGuest(loginRequest.UserId))
-            return;
+    //void CreateAccount(Net_OnLoginRequest loginRequest)
+    //{
+    //    if (FacebookEntegration.FacebookIsLoggedIn())
+    //        return;
 
-        Client.Instance.SendCreateAccount(loginRequest.UserId);
-    }
+    //    string id = "Guest#" + Utility.GenerateRandom(25);
+    //    Client.Instance.SendCreateAccount(id);
+    //}
 }

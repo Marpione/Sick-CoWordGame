@@ -7,11 +7,13 @@ public class FacebookLogin : MonoBehaviour
 {
     private void OnEnable()
     {
+        Client.OnLoginFail += CreateANewAccountForDiffferentFacebookUser;
         Client.OnCreateAcountSuccess += LoginWithFacebook;
     }
 
     private void OnDisable()
     {
+        Client.OnLoginFail -= CreateANewAccountForDiffferentFacebookUser;
         Client.OnCreateAcountSuccess -= LoginWithFacebook;
     }
 
@@ -50,10 +52,19 @@ public class FacebookLogin : MonoBehaviour
                 //Check if user played as a guest
                 if (!string.Equals(currentUserId, AccessToken.CurrentAccessToken.UserId))
                 {
-                    //Tell server to Change this account to a facebook connected account
-                    Client.Instance.SendLoginRequest(currentUserId, AccessToken.CurrentAccessToken.UserId);
-                    PlayerPrefs.SetString(PlayerPrefKeys.UserId, AccessToken.CurrentAccessToken.UserId);
-                    return;
+                    if(Utility.IsGuest(currentUserId))
+                    {
+                        //Tell server to Change this account to a facebook connected account
+                        Client.Instance.SendLoginRequest(currentUserId, AccessToken.CurrentAccessToken.UserId);
+                        PlayerPrefs.SetString(PlayerPrefKeys.UserId, AccessToken.CurrentAccessToken.UserId);
+                        return;
+                    }
+                    else
+                    {
+                        //Switch facebook account
+                        Client.Instance.SendLoginRequest(AccessToken.CurrentAccessToken.UserId);
+                    }
+
                 }
                 else
                 {
@@ -75,5 +86,28 @@ public class FacebookLogin : MonoBehaviour
     {
         Client.Instance.SendCreateAccount(AccessToken.CurrentAccessToken.UserId);
         PlayerPrefs.SetString(PlayerPrefKeys.UserId, AccessToken.CurrentAccessToken.UserId);
+    }
+
+    void CreateANewAccountForDiffferentFacebookUser(Net_OnLoginRequest olr)
+    {
+        if (!FacebookEntegration.FacebookIsLoggedIn())
+            return;
+        //This is the case when we play as a facebook user then login with a different facebook account
+        //Check if the login respone has user id
+        if (string.IsNullOrEmpty(olr.UserId))
+        {
+            //Check if there is a user id in this mechine
+            if(PlayerPrefs.HasKey(PlayerPrefKeys.UserId))
+            {
+                string userId = PlayerPrefs.GetString(PlayerPrefKeys.UserId);
+                //Check if the user id
+                if (!Utility.IsGuest(userId))
+                {
+                    //Check if we want to login with a different facebook account from the saved one
+                    if(!string.Equals(userId, AccessToken.CurrentAccessToken.UserId))
+                        CreateAccountWithFacebook();
+                }
+            }
+        }
     }
 }
