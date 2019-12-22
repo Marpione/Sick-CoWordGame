@@ -10,9 +10,9 @@ using System;
 public class Client : Singleton<Client>
 {
     private const int MAX_USER = 100;
-    private const int port = 13000;
-    private const int web_Port = 13001;
-    private const string serverIP = "127.0.0.1";
+    private const int port = 8080;
+    private const int web_Port = 8081;
+    private string serverIP = "127.0.0.1";
     public int BYTE_SIZE = 1024;
 
 
@@ -23,7 +23,7 @@ public class Client : Singleton<Client>
 
     private bool isStarted = false;
 
-    private Account self;
+    public Account self;
     private string token;
     public string Token { get { return token; } }
 
@@ -55,11 +55,15 @@ public class Client : Singleton<Client>
     #endregion
 
     #region MonoBehaviour
+
+    private void OnEnable()
+    {
+        FacebookEntegration.InitFacebook();
+        Debug.Log("Facebook Initilized");
+    }
     private void Start()
     {
         DontDestroyOnLoad(gameObject);
-        FacebookEntegration.debugMode = true;
-        FacebookEntegration.InitFacebook();
         Initilize();
     }
 
@@ -79,6 +83,12 @@ public class Client : Singleton<Client>
 
         //Client Only Code
         hostId = NetworkTransport.AddHost(hostTopology, 0);
+
+#if UNITY_EDITOR
+        serverIP = "127.0.0.1";
+#else
+        serverIP = "10.0.2.2";
+#endif
 
         //StandaloneClient
         connectionID = NetworkTransport.Connect(hostId, serverIP, port, 0, out error);
@@ -134,7 +144,7 @@ public class Client : Singleton<Client>
                 break;
         }
     }
-    #region OnData
+#region OnData
     private void OnData(int connectionId, int channelId, int recHostId, NetMessage netMessage)
     {
         Debug.Log("Recived a message of type " + netMessage.OP);
@@ -224,10 +234,10 @@ public class Client : Singleton<Client>
             }
         }
     }
-    #endregion
+#endregion
 
 
-    #region Send
+#region Send
     public void SendServer(NetMessage netMessage)
     {
         //This is where we hold our data
@@ -273,12 +283,12 @@ public class Client : Singleton<Client>
         Debug.Log("Send a login Request " + token);
     }
 
-    public void SendAddFriend(string usernameOrEmail)
+    public void SendAddFriend(string friendId)
     {
         Net_AddFriend af = new Net_AddFriend();
-
+        Debug.Log("Sending friend Request to: " + friendId);
         af.Token = Token;
-        af.UserId = usernameOrEmail;
+        af.UserId = friendId;
 
         SendServer(af);
     }
@@ -303,5 +313,5 @@ public class Client : Singleton<Client>
     }
 
 
-    #endregion
+#endregion
 }

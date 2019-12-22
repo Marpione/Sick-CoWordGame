@@ -28,14 +28,11 @@ public class FriendsPanel : Panel
 
     void AskForFirends(NetMessage netMessage)
     {
-        Debug.Log("Asking friend Request");
-        Debug.Log(netMessage.GetType());
         Client.Instance.SendFriendRequest();
     }
 
     void AddFriendToList(Net_OnAddFriend net_OnAddFriend)
     {
-        Debug.Log(net_OnAddFriend.Success);
         if (net_OnAddFriend.Success == 1)
         {
             GameObject go = Instantiate(FriendDiplayPrefab, transform);

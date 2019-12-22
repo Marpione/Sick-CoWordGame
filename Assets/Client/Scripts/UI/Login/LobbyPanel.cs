@@ -29,7 +29,24 @@ public class LobbyPanel : Panel
             if (Utility.IsGuest(userId))
                 return;
             Debug.Log("Logging automatically with id " + userId);
-            Client.Instance.SendLoginRequest(userId);
+            FacebookEntegration.FacebookLogin((result) =>
+            {
+
+                if (result.Error != null)
+                {
+                    Debug.LogError("Facebook login error result: " + result.Error);
+                    return;
+                }
+                else if (result.Cancelled)
+                {
+                    Debug.LogError("Facebook login error result: " + result.Cancelled);
+                    return;
+                }
+                else
+                {
+                    Client.Instance.SendLoginRequest(PlayerPrefs.GetString(PlayerPrefKeys.UserId));
+                }
+            });
         }
     }
 }

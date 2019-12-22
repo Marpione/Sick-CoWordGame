@@ -1,18 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Facebook.Unity;
-
+using Sirenix.OdinInspector;
 public class FacebookLogin : MonoBehaviour
 {
+    public List<FacebookFriendInfoHolder> FacebookFriends;
+    public Text DebugText;
+
     private void OnEnable()
     {
+        Client.OnLoginSuccess += GetFacebookFriends;
         Client.OnLoginFail += CreateANewAccountForDiffferentFacebookUser;
         Client.OnCreateAcountSuccess += LoginWithFacebook;
+        
     }
 
     private void OnDisable()
     {
+        Client.OnLoginSuccess -= GetFacebookFriends;
         Client.OnLoginFail -= CreateANewAccountForDiffferentFacebookUser;
         Client.OnCreateAcountSuccess -= LoginWithFacebook;
     }
@@ -78,8 +85,24 @@ public class FacebookLogin : MonoBehaviour
     {
         if (Utility.IsGuest(createAccount.UserId))
             return;
+        FacebookEntegration.FacebookLogin((result) =>
+        {
 
-        Client.Instance.SendLoginRequest(PlayerPrefs.GetString(PlayerPrefKeys.UserId));
+            if (result.Error != null)
+            {
+                Debug.LogError("Facebook login error result: " + result.Error);
+                return;
+            }
+            else if (result.Cancelled)
+            {
+                Debug.LogError("Facebook login error result: " + result.Cancelled);
+                return;
+            }
+            else
+            {
+                Client.Instance.SendLoginRequest(PlayerPrefs.GetString(PlayerPrefKeys.UserId));
+            }
+        });
     }
 
     void CreateAccountWithFacebook()
@@ -109,5 +132,11 @@ public class FacebookLogin : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void GetFacebookFriends(Net_OnLoginRequest onLoginRequest)
+    {
+        if(FacebookEntegration.FacebookIsLoggedIn())
+            FacebookEntegration.GetFacebookFriedns();
     }
 }
